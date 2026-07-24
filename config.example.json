@@ -1,0 +1,27 @@
+{
+  "providers": {
+    "9router": {
+      "type": "openai",
+      "baseUrl": "http://127.0.0.1:20128/v1",
+      "apiKey": "YOUR_9ROUTER_API_KEY"
+    },
+    "cloudflare-workers-ai": {
+      "type": "cloudflare",
+      "apiKey": "YOUR_CLOUDFLARE_API_KEY",
+      "accountId": "YOUR_CLOUDFLARE_ACCOUNT_ID"
+    }
+  },
+  "defaultProvider": "9router",
+  "models": {
+    "chat": "oc/big-pickle",
+    "edit": "oc/big-pickle",
+    "autocomplete": "oc/big-pickle"
+  },
+  "rules": [
+    "You are Arch Assistant, integrated into ArchIDE.",
+    "When suggesting code edits, provide the full replacement block.",
+    "Be concise and helpful.",
+    "For C#/Unity/MelonLoader modding questions, consider the specific context of game modding.",
+    "For SolidJS/TypeScript questions, follow modern best practices."
+  ]
+}

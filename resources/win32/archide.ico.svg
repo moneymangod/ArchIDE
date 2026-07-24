@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="50%" style="stop-color:#16213e"/>
+      <stop offset="100%" style="stop-color:#0f3460"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e94560"/>
+      <stop offset="100%" style="stop-color:#ff6b6b"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#533483"/>
+      <stop offset="100%" style="stop-color:#e94560"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background rounded rectangle -->
+  <rect x="32" y="32" width="960" height="960" rx="180" ry="180" fill="url(#bg)"/>
+  
+  <!-- Subtle border glow -->
+  <rect x="32" y="32" width="960" height="960" rx="180" ry="180" fill="none" stroke="url(#glow)" stroke-width="4" opacity="0.6"/>
+  
+  <!-- Editor bracket shape - left -->
+  <path d="M280 280 L180 512 L280 744" stroke="url(#accent)" stroke-width="64" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  
+  <!-- Editor bracket shape - right -->
+  <path d="M744 280 L844 512 L744 744" stroke="url(#accent)" stroke-width="64" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  
+  <!-- Cursor line -->
+  <line x1="420" y1="380" x2="604" y2="380" stroke="#ffffff" stroke-width="48" stroke-linecap="round" opacity="0.9"/>
+  
+  <!-- AI dot -->
+  <circle cx="512" cy="620" r="48" fill="url(#accent)"/>
+  
+  <!-- Subtle sparkle effects -->
+  <circle cx="350" cy="350" r="8" fill="#ffffff" opacity="0.3"/>
+  <circle cx="674" cy="350" r="6" fill="#ffffff" opacity="0.2"/>
+  <circle cx="512" cy="280" r="10" fill="#ffffff" opacity="0.15"/>
+</svg>

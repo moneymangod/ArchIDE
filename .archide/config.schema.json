@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ArchIDE Configuration",
+  "description": "Configuration file for ArchIDE AI assistant",
+  "type": "object",
+  "properties": {
+    "providers": {
+      "type": "object",
+      "description": "AI provider configurations",
+      "properties": {
+        "cloudflare-workers-ai": {
+          "type": "object",
+          "properties": {
+            "apiKey": { "type": "string", "description": "Cloudflare API token" },
+            "accountId": { "type": "string", "description": "Cloudflare Account ID" },
+            "baseUrl": { "type": "string", "description": "Optional API base URL override" }
+          },
+          "required": ["apiKey", "accountId"]
+        },
+        "anthropic": {
+          "type": "object",
+          "properties": {
+            "apiKey": { "type": "string", "description": "Anthropic API key" },
+            "baseUrl": { "type": "string" }
+          },
+          "required": ["apiKey"]
+        },
+        "openai": {
+          "type": "object",
+          "properties": {
+            "apiKey": { "type": "string", "description": "OpenAI API key" },
+            "baseUrl": { "type": "string" }
+          },
+          "required": ["apiKey"]
+        }
+      }
+    },
+    "defaultProvider": {
+      "type": "string",
+      "description": "Which provider to use by default",
+      "default": "cloudflare-workers-ai"
+    },
+    "models": {
+      "type": "object",
+      "description": "Model assignments per task type",
+      "properties": {
+        "chat": { "type": "string", "description": "Model for chat conversations", "default": "@cf/meta/llama-3.3-70b-instruct" },
+        "edit": { "type": "string", "description": "Model for code edits", "default": "@cf/meta/llama-3.3-70b-instruct" },
+        "autocomplete": { "type": "string", "description": "Model for inline autocomplete", "default": "@cf/meta/coderound-3.5" }
+      }
+    },
+    "rules": {
+      "type": "array",
+      "description": "System instructions always sent to the AI",
+      "items": { "type": "string" }
+    },
+    "cliPath": {
+      "type": "string",
+      "description": "Path to ArchCLI binary (optional, uses REST API if not set)"
+    }
+  }
+}
