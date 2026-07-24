@@ -69,6 +69,12 @@ export class ArchChatPanel implements vscode.WebviewViewProvider, vscode.Disposa
 					vscode.commands.executeCommand('workbench.action.terminal.new');
 					vscode.commands.executeCommand('workbench.action.terminal.toggleTerminal');
 					break;
+				case 'read-active-file':
+					await this.sendActiveFileToChat();
+					break;
+				case 'read-all-open':
+					await this.sendAllOpenFilesToChat();
+					break;
 				case 'apply-diff':
 					await this.applyDiff(message.filePath, message.original, message.replacement);
 					break;
@@ -185,6 +191,43 @@ export class ArchChatPanel implements vscode.WebviewViewProvider, vscode.Disposa
 
 	private postToWebview(message: any) {
 		this.view?.webview.postMessage(message);
+	}
+
+	private async sendActiveFileToChat() {
+		const editor = vscode.window.activeTextEditor;
+		if (!editor) {
+			this.postToWebview({ type: 'error', content: 'No active editor. Open a file first.' });
+			return;
+		}
+		const doc = editor.document;
+		const fileName = vscode.workspace.asRelativePath(doc.fileName);
+		const content = doc.getText();
+		const selection = editor.document.getText(editor.selection);
+		const lang = doc.languageId;
+
+		let msg = `Here is the file "${fileName}" (${lang}):\n\`\`\`${lang}\n${content}\n\`\`\``;
+		if (selection) {
+			msg += `\n\nSelected code:\n\`\`\`${lang}\n${selection}\n\`\`\``;
+		}
+		this.sendMessage(msg);
+	}
+
+	private async sendAllOpenFilesToChat() {
+		const editors = vscode.window.visibleTextEditors;
+		if (!editors.length) {
+			this.postToWebview({ type: 'error', content: 'No open editors found.' });
+			return;
+		}
+
+		let msg = `Here are all ${editors.length} open file(s):\n\n`;
+		for (const ed of editors) {
+			const doc = ed.document;
+			const fileName = vscode.workspace.asRelativePath(doc.fileName);
+			const content = doc.getText();
+			const lang = doc.languageId;
+			msg += `--- ${fileName} (${lang}) ---\n\`\`\`${lang}\n${content}\n\`\`\`\n\n`;
+		}
+		this.sendMessage(msg);
 	}
 
 	private getHtml(): string {
@@ -379,6 +422,25 @@ export class ArchChatPanel implements vscode.WebviewViewProvider, vscode.Disposa
 			background: #16213e;
 			border-top: 1px solid #2a2a4a;
 		}
+		.toolbar {
+			display: flex;
+			gap: 6px;
+			margin-bottom: 8px;
+		}
+		.tool-btn {
+			background: #0f3460;
+			color: #00d4ff;
+			border: 1px solid #00d4ff44;
+			border-radius: 6px;
+			padding: 4px 10px;
+			font-size: 11px;
+			cursor: pointer;
+			transition: all 0.15s;
+		}
+		.tool-btn:hover {
+			background: #00d4ff;
+			color: #1a1a2e;
+		}
 		.input-wrapper {
 			display: flex;
 			gap: 8px;
@@ -569,6 +631,10 @@ export class ArchChatPanel implements vscode.WebviewViewProvider, vscode.Disposa
 		<span>Arch is thinking...</span>
 	</div>
 	<div class="input-area">
+		<div class="toolbar">
+			<button class="tool-btn" id="readFileBtn" title="Send active file to chat">Read File</button>
+			<button class="tool-btn" id="readAllBtn" title="Send all open files to chat">Read All</button>
+		</div>
 		<div class="input-wrapper">
 			<textarea id="input" placeholder="Ask Arch anything..." rows="1"></textarea>
 			<button class="send-btn" id="send" title="Send">Send</button>
@@ -584,6 +650,8 @@ export class ArchChatPanel implements vscode.WebviewViewProvider, vscode.Disposa
 		const modelSelect = document.getElementById('modelSelect');
 		const clearBtn = document.getElementById('clearBtn');
 		const terminalBtn = document.getElementById('terminalBtn');
+		const readFileBtn = document.getElementById('readFileBtn');
+		const readAllBtn = document.getElementById('readAllBtn');
 		let streaming = false;
 		let currentStreamEl = null;
 		let hasWelcomed = false;
@@ -598,6 +666,14 @@ export class ArchChatPanel implements vscode.WebviewViewProvider, vscode.Disposa
 
 		terminalBtn.addEventListener('click', () => {
 			vscode.postMessage({ type: 'open-terminal' });
+		});
+
+		readFileBtn.addEventListener('click', () => {
+			vscode.postMessage({ type: 'read-active-file' });
+		});
+
+		readAllBtn.addEventListener('click', () => {
+			vscode.postMessage({ type: 'read-all-open' });
 		});
 
 		inputEl.addEventListener('keydown', (e) => {
