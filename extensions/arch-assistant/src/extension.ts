@@ -10,6 +10,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand('arch-assistant.openChat', () => {
+			vscode.commands.executeCommand('workbench.action.openPanel');
 			chatPanel.reveal();
 		}),
 		vscode.commands.registerCommand('arch-assistant.editWithAI', async () => {
@@ -36,6 +37,7 @@ export function activate(context: vscode.ExtensionContext) {
 			if (!editor) return;
 			const selection = editor.document.getText(editor.selection);
 			if (!selection) return;
+			vscode.commands.executeCommand('workbench.action.openPanel');
 			chatPanel.reveal();
 			chatPanel.sendMessage(`Explain this code:\n\`\`\`\n${selection}\n\`\`\``);
 		}),
@@ -44,6 +46,7 @@ export function activate(context: vscode.ExtensionContext) {
 			if (!editor) return;
 			const selection = editor.document.getText(editor.selection);
 			if (!selection) return;
+			vscode.commands.executeCommand('workbench.action.openPanel');
 			chatPanel.reveal();
 			chatPanel.sendMessage(`Fix bugs in this code:\n\`\`\`\n${selection}\n\`\`\``);
 		}),
@@ -53,6 +56,7 @@ export function activate(context: vscode.ExtensionContext) {
 			const selection = editor.document.getText(editor.selection);
 			const fileName = vscode.workspace.asRelativePath(editor.document.fileName);
 			if (!selection) return;
+			vscode.commands.executeCommand('workbench.action.openPanel');
 			chatPanel.reveal();
 			chatPanel.sendMessage(`Context from ${fileName}:\n\`\`\`\n${selection}\n\`\`\``);
 		}),
@@ -62,11 +66,12 @@ export function activate(context: vscode.ExtensionContext) {
 		webviewOptions: { retainContextWhenHidden: true }
 	});
 
-	// Auto-open sidebar on startup
+	// Auto-open panel on startup
 	const config = ArchCliBridge.loadConfig();
-	const delay = config.autoOpenDelay || 300;
+	const delay = config.autoOpenDelay || 500;
 	setTimeout(() => {
-		vscode.commands.executeCommand('workbench.view.extension.arch-assistant');
+		vscode.commands.executeCommand('workbench.action.openPanel');
+		chatPanel.reveal();
 	}, delay);
 }
 

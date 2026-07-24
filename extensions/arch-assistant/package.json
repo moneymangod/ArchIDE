@@ -1,11 +1,11 @@
 {
   "name": "arch-assistant",
   "displayName": "Arch Assistant",
-  "description": "AI-powered coding assistant powered by ArchCLI",
-  "version": "0.1.0",
+  "description": "AI-powered coding assistant",
+  "version": "0.2.0",
   "publisher": "archide",
   "engines": {
-    "vscode": "^1.130.0"
+    "vscode": "^1.126.0"
   },
   "categories": [
     "AI",
@@ -15,20 +15,20 @@
   "main": "./out/extension.js",
   "contributes": {
     "viewsContainers": {
-      "activitybar": [
+      "panel": [
         {
-          "id": "arch-assistant",
+          "id": "arch-assistant-panel",
           "title": "Arch Assistant",
           "icon": "$(sparkle)"
         }
       ]
     },
     "views": {
-      "arch-assistant": [
+      "arch-assistant-panel": [
         {
           "type": "webview",
           "id": "arch-assistant.chat",
-          "name": "Chat"
+          "name": "Arch Assistant"
         }
       ]
     },
@@ -71,28 +71,23 @@
       "properties": {
         "arch-assistant.defaultProvider": {
           "type": "string",
-          "default": "cloudflare-workers-ai",
+          "default": "9router",
           "description": "AI provider to use for chat and edits"
         },
         "arch-assistant.models.chat": {
           "type": "string",
-          "default": "@cf/meta/llama-3.3-70b-instruct",
+          "default": "oc/big-pickle",
           "description": "Model for chat conversations"
         },
         "arch-assistant.models.edit": {
           "type": "string",
-          "default": "@cf/meta/llama-3.3-70b-instruct",
+          "default": "oc/big-pickle",
           "description": "Model for code edits"
         },
         "arch-assistant.models.autocomplete": {
           "type": "string",
-          "default": "@cf/meta/coderound-3.5",
+          "default": "oc/big-pickle",
           "description": "Model for inline autocomplete"
-        },
-        "arch-assistant.cliPath": {
-          "type": "string",
-          "default": "",
-          "description": "Path to ArchCLI binary (optional)"
         }
       }
     },

@@ -65,6 +65,10 @@ export class ArchChatPanel implements vscode.WebviewViewProvider, vscode.Disposa
 					this.messages = [];
 					this.postToWebview({ type: 'chat-cleared' });
 					break;
+				case 'open-terminal':
+					vscode.commands.executeCommand('workbench.action.terminal.new');
+					vscode.commands.executeCommand('workbench.action.terminal.toggleTerminal');
+					break;
 				case 'apply-diff':
 					await this.applyDiff(message.filePath, message.original, message.replacement);
 					break;
@@ -199,8 +203,8 @@ export class ArchChatPanel implements vscode.WebviewViewProvider, vscode.Disposa
 		body {
 			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 			font-size: 13px;
-			color: var(--vscode-foreground);
-			background: #1e1e1e;
+			color: #e0e0e0;
+			background: #1a1a2e;
 			height: 100vh;
 			display: flex;
 			flex-direction: column;
@@ -208,43 +212,65 @@ export class ArchChatPanel implements vscode.WebviewViewProvider, vscode.Disposa
 		}
 		.header {
 			padding: 12px 16px;
-			background: #252526;
-			border-bottom: 1px solid #333;
+			background: #16213e;
+			border-bottom: 1px solid #2a2a4a;
 			display: flex;
 			align-items: center;
 			gap: 10px;
 		}
 		.header .logo {
-			font-size: 16px;
+			font-size: 18px;
+			font-weight: 700;
+			color: #00d4ff;
+			letter-spacing: -0.5px;
+		}
+		.header .model-badge {
+			background: #0f3460;
+			color: #00d4ff;
+			padding: 4px 10px;
+			border-radius: 12px;
+			font-size: 11px;
 			font-weight: 600;
-			color: #fff;
+			border: 1px solid #00d4ff33;
+			flex: 1;
+			text-align: center;
 		}
 		.header .model-select {
-			flex: 1;
-			background: #333;
-			color: #fff;
-			border: 1px solid #444;
-			border-radius: 6px;
-			padding: 6px 10px;
+			background: #0f3460;
+			color: #00d4ff;
+			border: 1px solid #00d4ff44;
+			border-radius: 8px;
+			padding: 6px 12px;
 			font-size: 12px;
 			cursor: pointer;
 			outline: none;
+			flex: 1;
 		}
 		.header .model-select:focus {
-			border-color: #007acc;
+			border-color: #00d4ff;
 		}
-		.header .clear-btn {
+		.header .model-select option {
+			background: #16213e;
+			color: #e0e0e0;
+		}
+		.header .actions {
+			display: flex;
+			gap: 4px;
+		}
+		.header .actions button {
 			background: transparent;
-			border: none;
+			border: 1px solid #2a2a4a;
 			color: #888;
 			cursor: pointer;
-			padding: 4px 8px;
-			border-radius: 4px;
+			padding: 6px 8px;
+			border-radius: 6px;
 			font-size: 14px;
+			transition: all 0.15s;
 		}
-		.header .clear-btn:hover {
-			background: #333;
-			color: #fff;
+		.header .actions button:hover {
+			background: #2a2a4a;
+			color: #00d4ff;
+			border-color: #00d4ff44;
 		}
 		.messages {
 			flex: 1;
@@ -257,7 +283,7 @@ export class ArchChatPanel implements vscode.WebviewViewProvider, vscode.Disposa
 		.message {
 			padding: 12px 16px;
 			border-radius: 12px;
-			max-width: 90%;
+			max-width: 92%;
 			word-wrap: break-word;
 			white-space: pre-wrap;
 			font-size: 13px;
@@ -269,52 +295,53 @@ export class ArchChatPanel implements vscode.WebviewViewProvider, vscode.Disposa
 			to { opacity: 1; transform: translateY(0); }
 		}
 		.message.user {
-			background: #007acc;
-			color: #fff;
+			background: #0f3460;
+			color: #00d4ff;
 			align-self: flex-end;
 			border-bottom-right-radius: 4px;
+			border: 1px solid #00d4ff33;
 		}
 		.message.assistant {
-			background: #2d2d2d;
+			background: #16213e;
 			border-bottom-left-radius: 4px;
-			border: 1px solid #333;
+			border: 1px solid #2a2a4a;
 		}
 		.message.error {
-			background: #5a1d1d;
-			color: #f48771;
-			border: 1px solid #f48771;
+			background: #3d1f1f;
+			color: #ff6b6b;
+			border: 1px solid #ff6b6b44;
 		}
 		.diff-proposal {
 			margin: 8px 0;
-			border: 1px solid #4ec9b0;
+			border: 1px solid #00d4ff;
 			border-radius: 8px;
 			overflow: hidden;
-			background: #1e1e1e;
+			background: #1a1a2e;
 		}
 		.diff-header {
 			padding: 8px 12px;
-			background: #252526;
+			background: #16213e;
 			font-size: 12px;
 			font-weight: 600;
-			border-bottom: 1px solid #333;
-			color: #4ec9b0;
+			border-bottom: 1px solid #2a2a4a;
+			color: #00d4ff;
 		}
 		.diff-content {
 			font-family: 'Cascadia Code', 'Fira Code', monospace;
 			font-size: 12px;
 			padding: 12px;
 			overflow-x: auto;
-			background: #1e1e1e;
+			background: #1a1a2e;
 		}
 		.diff-line.removed {
-			color: #f48771;
-			background: rgba(244, 135, 113, 0.1);
+			color: #ff6b6b;
+			background: rgba(255, 107, 107, 0.1);
 			display: block;
 			padding: 2px 4px;
 		}
 		.diff-line.added {
-			color: #4ec9b0;
-			background: rgba(78, 201, 176, 0.1);
+			color: #00d4ff;
+			background: rgba(0, 212, 255, 0.1);
 			display: block;
 			padding: 2px 4px;
 		}
@@ -322,7 +349,7 @@ export class ArchChatPanel implements vscode.WebviewViewProvider, vscode.Disposa
 			padding: 8px 12px;
 			display: flex;
 			gap: 8px;
-			border-top: 1px solid #333;
+			border-top: 1px solid #2a2a4a;
 		}
 		.diff-actions button {
 			padding: 6px 16px;
@@ -331,26 +358,26 @@ export class ArchChatPanel implements vscode.WebviewViewProvider, vscode.Disposa
 			cursor: pointer;
 			font-size: 12px;
 			font-weight: 500;
-			transition: background 0.15s;
+			transition: all 0.15s;
 		}
 		.diff-actions .accept {
-			background: #0e639c;
-			color: #fff;
+			background: #00d4ff;
+			color: #1a1a2e;
 		}
 		.diff-actions .accept:hover {
-			background: #1177bb;
+			background: #00b8d9;
 		}
 		.diff-actions .reject {
-			background: #333;
+			background: #2a2a4a;
 			color: #ccc;
 		}
 		.diff-actions .reject:hover {
-			background: #444;
+			background: #3a3a5a;
 		}
 		.input-area {
 			padding: 12px 16px;
-			background: #252526;
-			border-top: 1px solid #333;
+			background: #16213e;
+			border-top: 1px solid #2a2a4a;
 		}
 		.input-wrapper {
 			display: flex;
@@ -359,9 +386,9 @@ export class ArchChatPanel implements vscode.WebviewViewProvider, vscode.Disposa
 		}
 		.input-wrapper textarea {
 			flex: 1;
-			background: #333;
-			color: #fff;
-			border: 1px solid #444;
+			background: #1a1a2e;
+			color: #e0e0e0;
+			border: 1px solid #2a2a4a;
 			border-radius: 8px;
 			padding: 10px 14px;
 			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -373,38 +400,41 @@ export class ArchChatPanel implements vscode.WebviewViewProvider, vscode.Disposa
 			outline: none;
 		}
 		.input-wrapper textarea:focus {
-			border-color: #007acc;
+			border-color: #00d4ff;
 		}
 		.input-wrapper textarea::placeholder {
-			color: #666;
+			color: #555;
 		}
 		.send-btn {
 			width: 42px;
 			height: 42px;
 			border: none;
 			border-radius: 8px;
-			background: #007acc;
-			color: #fff;
+			background: #00d4ff;
+			color: #1a1a2e;
 			cursor: pointer;
 			display: flex;
 			align-items: center;
 			justify-content: center;
 			font-size: 18px;
-			transition: background 0.15s;
+			font-weight: bold;
+			transition: all 0.15s;
 			flex-shrink: 0;
 		}
 		.send-btn:hover {
-			background: #0098ff;
+			background: #00b8d9;
+			transform: scale(1.05);
 		}
 		.send-btn:disabled {
-			background: #333;
-			color: #666;
+			background: #2a2a4a;
+			color: #555;
 			cursor: not-allowed;
+			transform: none;
 		}
 		.typing-indicator {
 			padding: 8px 16px;
 			font-size: 12px;
-			color: #888;
+			color: #00d4ff;
 			display: none;
 			align-items: center;
 			gap: 8px;
@@ -419,7 +449,7 @@ export class ArchChatPanel implements vscode.WebviewViewProvider, vscode.Disposa
 		.typing-dots span {
 			width: 6px;
 			height: 6px;
-			background: #007acc;
+			background: #00d4ff;
 			border-radius: 50%;
 			animation: bounce 1.4s infinite ease-in-out;
 		}
@@ -430,25 +460,27 @@ export class ArchChatPanel implements vscode.WebviewViewProvider, vscode.Disposa
 			40% { transform: scale(1); }
 		}
 		code {
-			background: #1e1e1e;
+			background: #1a1a2e;
 			padding: 2px 6px;
 			border-radius: 4px;
 			font-family: 'Cascadia Code', 'Fira Code', monospace;
 			font-size: 12px;
-			border: 1px solid #333;
+			border: 1px solid #2a2a4a;
+			color: #00d4ff;
 		}
 		pre {
-			background: #1e1e1e;
+			background: #0f0f23;
 			padding: 12px;
 			border-radius: 6px;
 			overflow-x: auto;
 			margin: 8px 0;
-			border: 1px solid #333;
+			border: 1px solid #2a2a4a;
 		}
 		pre code {
 			padding: 0;
 			background: none;
 			border: none;
+			color: #e0e0e0;
 		}
 		.welcome {
 			flex: 1;
@@ -456,42 +488,49 @@ export class ArchChatPanel implements vscode.WebviewViewProvider, vscode.Disposa
 			flex-direction: column;
 			align-items: center;
 			justify-content: center;
-			color: #666;
+			color: #555;
 			text-align: center;
 			padding: 24px;
 		}
 		.welcome .icon {
-			font-size: 48px;
+			font-size: 64px;
 			margin-bottom: 16px;
-			opacity: 0.5;
+			color: #00d4ff;
+			opacity: 0.8;
 		}
 		.welcome h3 {
-			color: #ccc;
+			color: #e0e0e0;
 			margin-bottom: 8px;
-			font-size: 16px;
+			font-size: 20px;
+			font-weight: 600;
 		}
 		.welcome p {
 			font-size: 13px;
 			line-height: 1.5;
+			max-width: 280px;
 		}
 		.welcome .shortcuts {
-			margin-top: 20px;
-			padding: 12px 16px;
-			background: #252526;
-			border-radius: 8px;
-			border: 1px solid #333;
+			margin-top: 24px;
+			padding: 16px;
+			background: #16213e;
+			border-radius: 10px;
+			border: 1px solid #2a2a4a;
+			text-align: left;
 		}
 		.welcome .shortcuts div {
-			padding: 4px 0;
+			padding: 6px 0;
 			font-size: 12px;
+			color: #888;
 		}
 		.welcome .shortcuts kbd {
-			background: #333;
-			padding: 2px 6px;
+			background: #0f3460;
+			padding: 3px 8px;
 			border-radius: 4px;
 			font-family: monospace;
 			font-size: 11px;
-			border: 1px solid #444;
+			border: 1px solid #00d4ff33;
+			color: #00d4ff;
+			margin-right: 8px;
 		}
 	</style>
 </head>
@@ -499,24 +538,29 @@ export class ArchChatPanel implements vscode.WebviewViewProvider, vscode.Disposa
 	<div class="header">
 		<span class="logo">Arch</span>
 		<select class="model-select" id="modelSelect">
-			<option value="oc/big-pickle">${currentModel === 'oc/big-pickle' ? 'oc/big-pickle' : currentModel}</option>
+			<option value="oc/big-pickle">oc/big-pickle</option>
 			<option value="gemini/gemini-2.5-flash">gemini-2.5-flash</option>
 			<option value="nvidia/minimaxai/minimax-m3">minimax-m3</option>
 			<option value="nvidia/minimaxai/minimax-m2.7">minimax-m2.7</option>
 			<option value="groq/openai/gpt-oss-120b">gpt-oss-120b</option>
 			<option value="cf/@cf/moonshotai/kimi-k2.6">kimi-k2.6</option>
 		</select>
-		<button class="clear-btn" id="clearBtn" title="Clear chat">Clear</button>
+		<div class="actions">
+			<button id="terminalBtn" title="Open Terminal">Terminal</button>
+			<button id="clearBtn" title="Clear chat">Clear</button>
+		</div>
 	</div>
 	<div class="messages" id="messages">
 		<div class="welcome">
 			<div class="icon">Arch</div>
 			<h3>Arch Assistant</h3>
-			<p>Ask me anything about your code.</p>
+			<p>Ask me anything about your code. I can edit, explain, fix, and more.</p>
 			<div class="shortcuts">
 				<div><kbd>Ctrl+Shift+E</kbd> Edit with AI</div>
 				<div><kbd>Ctrl+Shift+A</kbd> Open Chat</div>
 				<div><kbd>@filename</kbd> Mention a file</div>
+				<div><kbd>Enter</kbd> Send message</div>
+				<div><kbd>Shift+Enter</kbd> New line</div>
 			</div>
 		</div>
 	</div>
@@ -539,6 +583,7 @@ export class ArchChatPanel implements vscode.WebviewViewProvider, vscode.Disposa
 		const sendBtn = document.getElementById('send');
 		const modelSelect = document.getElementById('modelSelect');
 		const clearBtn = document.getElementById('clearBtn');
+		const terminalBtn = document.getElementById('terminalBtn');
 		let streaming = false;
 		let currentStreamEl = null;
 		let hasWelcomed = false;
@@ -549,6 +594,10 @@ export class ArchChatPanel implements vscode.WebviewViewProvider, vscode.Disposa
 
 		clearBtn.addEventListener('click', () => {
 			vscode.postMessage({ type: 'clear-chat' });
+		});
+
+		terminalBtn.addEventListener('click', () => {
+			vscode.postMessage({ type: 'open-terminal' });
 		});
 
 		inputEl.addEventListener('keydown', (e) => {
@@ -628,7 +677,7 @@ export class ArchChatPanel implements vscode.WebviewViewProvider, vscode.Disposa
 				original: btn.dataset.orig,
 				replacement: btn.dataset.repl
 			});
-			btn.closest('.diff-proposal').querySelector('.diff-actions').innerHTML = '<span style="color:#4ec9b0">Applied!</span>';
+			btn.closest('.diff-proposal').querySelector('.diff-actions').innerHTML = '<span style="color:#00d4ff">Applied!</span>';
 		}
 
 		function escapeHtml(text) {
