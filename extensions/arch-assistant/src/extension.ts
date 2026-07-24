@@ -62,10 +62,12 @@ export function activate(context: vscode.ExtensionContext) {
 		webviewOptions: { retainContextWhenHidden: true }
 	});
 
-	// Auto-open the chat sidebar on startup
+	// Auto-open sidebar on startup
+	const config = ArchCliBridge.loadConfig();
+	const delay = config.autoOpenDelay || 300;
 	setTimeout(() => {
 		vscode.commands.executeCommand('workbench.view.extension.arch-assistant');
-	}, 500);
+	}, delay);
 }
 
 export function deactivate() {}

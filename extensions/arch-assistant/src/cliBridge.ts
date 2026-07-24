@@ -203,6 +203,10 @@ Be concise and helpful. When editing code, provide the full replacement block.`;
 		}
 	}
 
+	switchModel(model: string) {
+		this.config.models.chat = model;
+	}
+
 	dispose() {
 		this.cancelCurrentRequest();
 		this.outputChannel.dispose();
