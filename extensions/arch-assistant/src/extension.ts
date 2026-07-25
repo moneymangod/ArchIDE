@@ -1,78 +1,74 @@
 import * as vscode from 'vscode';
-import { ArchChatPanel } from './chatPanel';
-import { ArchCliBridge } from './cliBridge';
-import { InlineEditProvider } from './inlineEdit';
+
+let archTerminal: vscode.Terminal | undefined;
 
 export function activate(context: vscode.ExtensionContext) {
-	const bridge = new ArchCliBridge(context);
-	const chatPanel = new ArchChatPanel(context.extensionUri, bridge);
-	const inlineEdit = new InlineEditProvider(bridge);
+	// Auto-open terminal with 'arch' on startup
+	const config = loadConfig();
+	const delay = config.autoOpenDelay || 500;
 
+	setTimeout(async () => {
+		// Set terminal to right side
+		await vscode.workspace.getConfiguration().update(
+			'workbench.sideBar.location',
+			'right',
+			vscode.ConfigurationTarget.Global
+		);
+
+		// Create terminal running arch
+		archTerminal = vscode.window.createTerminal({
+			name: 'Arch CLI',
+			iconPath: new vscode.ThemeIcon('terminal'),
+		});
+
+		// Show the terminal
+		archTerminal.show();
+
+		// Run the arch command
+		archTerminal.sendText('arch', true);
+	}, delay);
+
+	// Register command to open new arch terminal
 	context.subscriptions.push(
-		vscode.commands.registerCommand('arch-assistant.openChat', () => {
-			vscode.commands.executeCommand('workbench.action.openPanel');
-			chatPanel.reveal();
-		}),
-		vscode.commands.registerCommand('arch-assistant.editWithAI', async () => {
-			const editor = vscode.window.activeTextEditor;
-			if (!editor) {
-				vscode.window.showWarningMessage('No active editor');
-				return;
-			}
-			const selection = editor.document.getText(editor.selection);
-			if (!selection) {
-				vscode.window.showWarningMessage('Select code first');
-				return;
-			}
-			const prompt = await vscode.window.showInputBox({
-				prompt: 'How should I edit this code?',
-				placeHolder: 'e.g. Add error handling, rename to camelCase, optimize for performance...'
+		vscode.commands.registerCommand('arch-assistant.openTerminal', () => {
+			const terminal = vscode.window.createTerminal({
+				name: 'Arch CLI',
+				iconPath: new vscode.ThemeIcon('terminal'),
 			});
-			if (!prompt) return;
-
-			await inlineEdit.proposeEdit(editor, editor.selection, prompt);
-		}),
-		vscode.commands.registerCommand('arch-assistant.explainCode', async () => {
-			const editor = vscode.window.activeTextEditor;
-			if (!editor) return;
-			const selection = editor.document.getText(editor.selection);
-			if (!selection) return;
-			vscode.commands.executeCommand('workbench.action.openPanel');
-			chatPanel.reveal();
-			chatPanel.sendMessage(`Explain this code:\n\`\`\`\n${selection}\n\`\`\``);
-		}),
-		vscode.commands.registerCommand('arch-assistant.fixCode', async () => {
-			const editor = vscode.window.activeTextEditor;
-			if (!editor) return;
-			const selection = editor.document.getText(editor.selection);
-			if (!selection) return;
-			vscode.commands.executeCommand('workbench.action.openPanel');
-			chatPanel.reveal();
-			chatPanel.sendMessage(`Fix bugs in this code:\n\`\`\`\n${selection}\n\`\`\``);
-		}),
-		vscode.commands.registerCommand('arch-assistant.addToChat', async () => {
-			const editor = vscode.window.activeTextEditor;
-			if (!editor) return;
-			const selection = editor.document.getText(editor.selection);
-			const fileName = vscode.workspace.asRelativePath(editor.document.fileName);
-			if (!selection) return;
-			vscode.commands.executeCommand('workbench.action.openPanel');
-			chatPanel.reveal();
-			chatPanel.sendMessage(`Context from ${fileName}:\n\`\`\`\n${selection}\n\`\`\``);
+			terminal.show();
+			terminal.sendText('arch', true);
+			archTerminal = terminal;
 		}),
 	);
 
-	vscode.window.registerWebviewViewProvider('arch-assistant.chat', chatPanel, {
-		webviewOptions: { retainContextWhenHidden: true }
-	});
+	// Keep terminal alive
+	context.subscriptions.push(
+		vscode.window.onDidCloseTerminal((terminal) => {
+			if (terminal === archTerminal) {
+				archTerminal = undefined;
+			}
+		}),
+	);
+}
 
-	// Auto-open panel on startup
-	const config = ArchCliBridge.loadConfig();
-	const delay = config.autoOpenDelay || 500;
-	setTimeout(() => {
-		vscode.commands.executeCommand('workbench.action.openPanel');
-		chatPanel.reveal();
-	}, delay);
+function loadConfig() {
+	const fs = require('fs');
+	const path = require('path');
+	const globalConfigPath = path.join(
+		process.env.USERPROFILE || process.env.HOME || '',
+		'.archide', 'config.json'
+	);
+
+	let config: any = { autoOpenDelay: 500 };
+
+	if (fs.existsSync(globalConfigPath)) {
+		try {
+			const raw = fs.readFileSync(globalConfigPath, 'utf8');
+			config = { ...config, ...JSON.parse(raw) };
+		} catch {}
+	}
+
+	return config;
 }
 
 export function deactivate() {}

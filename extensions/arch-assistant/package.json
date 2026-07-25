@@ -1,132 +1,31 @@
 {
   "name": "arch-assistant",
   "displayName": "Arch Assistant",
-  "description": "AI-powered coding assistant",
-  "version": "0.2.0",
+  "description": "Auto-opens Arch CLI terminal on the right side",
+  "version": "0.3.0",
   "publisher": "archide",
   "engines": {
     "vscode": "^1.126.0"
   },
   "categories": [
-    "AI",
     "Other"
   ],
   "activationEvents": ["onStartupFinished"],
   "main": "./out/extension.js",
   "contributes": {
-    "viewsContainers": {
-      "panel": [
-        {
-          "id": "arch-assistant-panel",
-          "title": "Arch Assistant",
-          "icon": "$(sparkle)"
-        }
-      ]
-    },
-    "views": {
-      "arch-assistant-panel": [
-        {
-          "type": "webview",
-          "id": "arch-assistant.chat",
-          "name": "Arch Assistant"
-        }
-      ]
-    },
     "commands": [
       {
-        "command": "arch-assistant.openChat",
-        "title": "Arch: Open Chat"
-      },
-      {
-        "command": "arch-assistant.editWithAI",
-        "title": "Arch: Edit with AI"
-      },
-      {
-        "command": "arch-assistant.explainCode",
-        "title": "Arch: Explain Code"
-      },
-      {
-        "command": "arch-assistant.fixCode",
-        "title": "Arch: Fix Code"
-      },
-      {
-        "command": "arch-assistant.addToChat",
-        "title": "Arch: Add to Chat"
+        "command": "arch-assistant.openTerminal",
+        "title": "Arch: Open CLI Terminal"
       }
     ],
     "keybindings": [
       {
-        "command": "arch-assistant.editWithAI",
-        "key": "ctrl+shift+e",
-        "mac": "cmd+shift+e"
-      },
-      {
-        "command": "arch-assistant.openChat",
+        "command": "arch-assistant.openTerminal",
         "key": "ctrl+shift+a",
         "mac": "cmd+shift+a"
       }
-    ],
-    "configuration": {
-      "title": "Arch Assistant",
-      "properties": {
-        "arch-assistant.defaultProvider": {
-          "type": "string",
-          "default": "9router",
-          "description": "AI provider to use for chat and edits"
-        },
-        "arch-assistant.models.chat": {
-          "type": "string",
-          "default": "oc/big-pickle",
-          "description": "Model for chat conversations"
-        },
-        "arch-assistant.models.edit": {
-          "type": "string",
-          "default": "oc/big-pickle",
-          "description": "Model for code edits"
-        },
-        "arch-assistant.models.autocomplete": {
-          "type": "string",
-          "default": "oc/big-pickle",
-          "description": "Model for inline autocomplete"
-        }
-      }
-    },
-    "menus": {
-      "editor/context": [
-        {
-          "command": "arch-assistant.explainCode",
-          "when": "editorHasSelection",
-          "group": "arch@1"
-        },
-        {
-          "command": "arch-assistant.fixCode",
-          "when": "editorHasSelection",
-          "group": "arch@2"
-        },
-        {
-          "command": "arch-assistant.addToChat",
-          "when": "editorHasSelection",
-          "group": "arch@3"
-        },
-        {
-          "command": "arch-assistant.editWithAI",
-          "when": "editorHasSelection",
-          "group": "arch@4"
-        }
-      ],
-      "editor/title": [
-        {
-          "command": "arch-assistant.openChat",
-          "group": "navigation"
-        }
-      ],
-      "commandPalette": [
-        {
-          "command": "arch-assistant.editWithAI",
-          "when": "editorTextFocus"
-        }
-      ]
-    }
+    ]
   },
   "devDependencies": {
     "@types/node": "^26.1.1",
