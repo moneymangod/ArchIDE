@@ -1,47 +1,53 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
+import * as fs from 'fs';
 
 let archTerminal: vscode.Terminal | undefined;
 
+function findOpenCodeCommand(): string {
+	const candidates = [
+		path.join(process.env.USERPROFILE || '', 'Downloads', 'ArchCLI', 'opencode.bat'),
+		path.join(process.env.USERPROFILE || '', 'Downloads', 'ArchCLI', 'opencode.cmd'),
+	];
+
+	for (const p of candidates) {
+		if (fs.existsSync(p)) {
+			return `"${p}"`;
+		}
+	}
+
+	return 'opencode';
+}
+
 export function activate(context: vscode.ExtensionContext) {
-	// Auto-open terminal with 'arch' on startup
+	const cmd = findOpenCodeCommand();
 	const config = loadConfig();
 	const delay = config.autoOpenDelay || 500;
 
-	setTimeout(async () => {
-		// Set terminal to right side
-		await vscode.workspace.getConfiguration().update(
-			'workbench.sideBar.location',
-			'right',
-			vscode.ConfigurationTarget.Global
-		);
-
-		// Create terminal running arch
+	setTimeout(() => {
+		// Keep activity bar on left (default), open terminal on right panel
 		archTerminal = vscode.window.createTerminal({
-			name: 'Arch CLI',
+			name: 'OpenCode',
 			iconPath: new vscode.ThemeIcon('terminal'),
+			location: vscode.TerminalLocation.Panel,
 		});
-
-		// Show the terminal
 		archTerminal.show();
-
-		// Run the arch command
-		archTerminal.sendText('arch', true);
+		archTerminal.sendText(cmd, true);
 	}, delay);
 
-	// Register command to open new arch terminal
 	context.subscriptions.push(
 		vscode.commands.registerCommand('arch-assistant.openTerminal', () => {
 			const terminal = vscode.window.createTerminal({
-				name: 'Arch CLI',
+				name: 'OpenCode',
 				iconPath: new vscode.ThemeIcon('terminal'),
+				location: vscode.TerminalLocation.Panel,
 			});
 			terminal.show();
-			terminal.sendText('arch', true);
+			terminal.sendText(cmd, true);
 			archTerminal = terminal;
 		}),
 	);
 
-	// Keep terminal alive
 	context.subscriptions.push(
 		vscode.window.onDidCloseTerminal((terminal) => {
 			if (terminal === archTerminal) {
@@ -52,8 +58,6 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 function loadConfig() {
-	const fs = require('fs');
-	const path = require('path');
 	const globalConfigPath = path.join(
 		process.env.USERPROFILE || process.env.HOME || '',
 		'.archide', 'config.json'
